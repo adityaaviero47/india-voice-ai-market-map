@@ -188,5 +188,61 @@
       "vs_low": 17.02491905095001,
       "vs_high": 3.972481111888335
     }
+  },
+  "bolna_deal": {
+    "reported_arr_usd_m": 0.7,
+    "calls_per_day": 200000,
+    "revenue_per_call_usd": 0.009589041095890411,
+    "implied_billed_minutes_per_call": {
+      "Pay-as-you-go (6.0c)": 0.15981735159817353,
+      "Pilot, $300 (4.6c)": 0.20845741512805244,
+      "Pilot, $500 (4.2c)": 0.228310502283105
+    },
+    "triangulation_vs_reported": {
+      "low": 4.38,
+      "high": 18.771428571428572
+    },
+    "arr_per_paying_customer_usd": 666.6666666666666,
+    "mrr_per_paying_customer_usd": 55.55555555555555,
+    "series_a_scenario": {
+      "assumptions": {
+        "cheque_usd_m": 5.0,
+        "price_as_multiple_of_arr": 25,
+        "later_dilution": {
+          "Series B": 0.156,
+          "Series C": 0.104,
+          "ESOP top-ups": 0.05
+        }
+      },
+      "ownership_kept_after_later_rounds": 0.7184128,
+      "cases": {
+        "ARR $2M at raise": {
+          "post_money_usd_m": 50,
+          "entry_ownership": 0.1,
+          "exit_ownership": 0.07184128,
+          "exit_for_5x_usd_m": 347.9893454014183,
+          "exit_for_10x_usd_m": 695.9786908028366,
+          "arr_needed_for_5x_at_10x_revenue_usd_m": 34.79893454014183
+        },
+        "ARR $3M at raise": {
+          "post_money_usd_m": 75,
+          "entry_ownership": 0.06666666666666667,
+          "exit_ownership": 0.047894186666666665,
+          "exit_for_5x_usd_m": 521.9840181021274,
+          "exit_for_10x_usd_m": 1043.9680362042548,
+          "arr_needed_for_5x_at_10x_revenue_usd_m": 52.19840181021274
+        },
+        "ARR $5M at raise": {
+          "post_money_usd_m": 125,
+          "entry_ownership": 0.04,
+          "exit_ownership": 0.028736512,
+          "exit_for_5x_usd_m": 869.9733635035457,
+          "exit_for_10x_usd_m": 1739.9467270070913,
+          "arr_needed_for_5x_at_10x_revenue_usd_m": 86.99733635035457
+        }
+      },
+      "note": "SCENARIO: ARR at the raise and the 25x ARR price are assumptions",
+      "growth_needed_vs_reported_arr_for_5x": 74.56914544316106
+    }
   }
 }
