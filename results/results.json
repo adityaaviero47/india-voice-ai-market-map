@@ -1,27 +1,40 @@
 {
   "market_map": {
-    "companies": 6,
+    "companies": 10,
     "layers": [
       {
         "layer": "Applications",
-        "companies": 2,
-        "latest_rounds_usd_m": 33.0
+        "companies": 4,
+        "latest_rounds_usd_m": 295.0,
+        "share": 0.48938287989382884
+      },
+      {
+        "layer": "Infrastructure",
+        "companies": 1,
+        "latest_rounds_usd_m": 40.0,
+        "share": 0.06635700066357002
       },
       {
         "layer": "Models + platform",
-        "companies": 3,
-        "latest_rounds_usd_m": 257.0
+        "companies": 4,
+        "latest_rounds_usd_m": 261.5,
+        "share": 0.43380889183808896
       },
       {
         "layer": "Orchestration",
         "companies": 1,
-        "latest_rounds_usd_m": 6.3
+        "latest_rounds_usd_m": 6.3,
+        "share": 0.010451227604512276
       }
     ],
-    "latest_rounds_total_usd_m": 296.3,
-    "sarvam_share_of_total": 0.7897401282483969,
-    "rounds_in_2026": 5,
-    "median_round_excl_sarvam_usd_m": 10.0
+    "latest_rounds_total_usd_m": 602.8,
+    "top2": [
+      "Uniphore",
+      "Sarvam AI"
+    ],
+    "top2_share": 0.8195089581950896,
+    "median_round_excl_top2_usd_m": 10.0,
+    "rounds_in_2026": 6
   },
   "unit_economics": {
     "gross_margin_grid": {
@@ -117,5 +130,63 @@
     "low": 3.066,
     "high": 13.14,
     "note": "ESTIMATE: minutes per call and the price mix are assumptions; enterprise contracts may price lower"
+  },
+  "valuation": {
+    "Sarvam AI": {
+      "round": "Series B (first close)",
+      "new_money_usd_m": 234.0,
+      "post_money_usd_m": 1500.0,
+      "pre_money_usd_m": 1266.0,
+      "dilution": 0.156
+    },
+    "Uniphore": {
+      "round": "Series F",
+      "new_money_usd_m": 260.0,
+      "post_money_usd_m": 2500.0,
+      "pre_money_usd_m": 2240.0,
+      "dilution": 0.104,
+      "previous_post_money_usd_m": 2500,
+      "value_change_for_existing_holders": -0.10399999999999998
+    }
+  },
+  "vc_returns": {
+    "assumptions": {
+      "cheque_usd_m": 1.0,
+      "target_multiple": 10,
+      "exit_revenue_multiple": 10,
+      "later_dilution": {
+        "Series A": 0.2,
+        "Series B": 0.156,
+        "Series C": 0.104,
+        "ESOP top-ups": 0.05
+      }
+    },
+    "ownership_kept_after_later_rounds": 0.5747302400000001,
+    "scenarios": {
+      "seed post-money $20M": {
+        "entry_ownership": 0.05,
+        "exit_ownership": 0.028736512000000006,
+        "exit_needed_usd_m": 347.9893454014182,
+        "arr_needed_usd_m_at_10x": 34.798934540141815
+      },
+      "seed post-money $30M": {
+        "entry_ownership": 0.03333333333333333,
+        "exit_ownership": 0.01915767466666667,
+        "exit_needed_usd_m": 521.9840181021273,
+        "arr_needed_usd_m_at_10x": 52.19840181021273
+      },
+      "seed post-money $40M": {
+        "entry_ownership": 0.025,
+        "exit_ownership": 0.014368256000000003,
+        "exit_needed_usd_m": 695.9786908028364,
+        "arr_needed_usd_m_at_10x": 69.59786908028363
+      }
+    },
+    "note": "SCENARIO: seed post-money values and the Series A and ESOP dilution are assumptions; Series B and C dilution use the real Sarvam and Uniphore rounds",
+    "growth_needed_vs_bolna_estimate": {
+      "arr_needed_usd_m": 52.19840181021273,
+      "vs_low": 17.02491905095001,
+      "vs_high": 3.972481111888335
+    }
   }
 }
