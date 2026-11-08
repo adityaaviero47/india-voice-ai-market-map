@@ -1,5 +1,6 @@
-"""India voice AI agents: market map, unit economics and a revenue triangulation, for an early-stage investment memo.
-Inputs: data/companies.csv (every row sourced from public announcements, links in the file) and Bolna's public
+"""India voice AI agents: market map, unit economics, a revenue triangulation and a valuation / VC returns model,
+for an early-stage investment memo.
+Inputs: data/companies.csv (every row sourced from a public announcement, link in the file) and Bolna's public
 per-minute prices. Everything marked ESTIMATE or SCENARIO is a calculation on stated assumptions, not a reported figure.
 python run_analysis.py"""
 import json, numpy as np, pandas as pd
@@ -11,13 +12,15 @@ R = {}
 c = pd.read_csv("data/companies.csv")
 
 # ---------- 1. market map ----------
+total = c.round_usd_m.sum()
 L = c.groupby("layer").agg(companies=("company", "size"), latest_rounds_usd_m=("round_usd_m", "sum"))
-R["market_map"] = dict(companies=len(c), layers=L.reset_index().to_dict("records"),
-                       latest_rounds_total_usd_m=float(c.round_usd_m.sum()),
-                       sarvam_share_of_total=float(c.round_usd_m[c.company == "Sarvam AI"].sum() / c.round_usd_m.sum()),
+L["share"] = L.latest_rounds_usd_m / total
+top2 = c.nlargest(2, "round_usd_m")
+rest = c.drop(top2.index)
+R["market_map"] = dict(companies=len(c), layers=L.reset_index().to_dict("records"), latest_rounds_total_usd_m=float(total),
+                       top2=list(top2.company), top2_share=float(top2.round_usd_m.sum() / total),
+                       median_round_excl_top2_usd_m=float(rest.round_usd_m.median()),
                        rounds_in_2026=int(c.round_date.astype(str).str.startswith("2026").sum()))
-excl = c[c.company != "Sarvam AI"]
-R["market_map"]["median_round_excl_sarvam_usd_m"] = float(excl.round_usd_m.median())
 
 # ---------- 2. unit economics per minute (SCENARIO) ----------
 # Revenue: Bolna's public prices per minute, which bundle speech-to-text, the LLM and text-to-speech
@@ -25,10 +28,11 @@ R["market_map"]["median_round_excl_sarvam_usd_m"] = float(excl.round_usd_m.media
 PRICES = {"Pay-as-you-go (6.0c)": 0.060, "Pilot, $300 (4.6c)": 0.046, "Pilot, $500 (4.2c)": 0.042}
 # Cost: the provider's own cost of the AI stack per minute is not public, so it is a range to test.
 COSTS = np.round(np.arange(0.005, 0.0501, 0.005), 3)
+# gross margin = 1 - cost per minute / price per minute
 grid = pd.DataFrame({k: [1 - cost / p for cost in COSTS] for k, p in PRICES.items()}, index=[f"{x*100:.1f}c" for x in COSTS])
 R["unit_economics"] = dict(
     gross_margin_grid={i: {k: round(float(v), 3) for k, v in row.items()} for i, row in grid.iterrows()},
-    max_stack_cost_for_50pct_margin_c={k: p * 0.5 * 100 for k, p in PRICES.items()},
+    max_stack_cost_for_50pct_margin_c={k: round(p * 0.5 * 100, 2) for k, p in PRICES.items()},
     max_stack_cost_for_70pct_margin_c={k: round(p * 0.3 * 100, 2) for k, p in PRICES.items()})
 # cost-down scenario: what a 75% cut in stack cost does to margin at the lowest public price
 p, before = 0.042, 0.035
@@ -45,15 +49,48 @@ R["revenue_triangulation"] = dict(calls_per_day=calls, annualised_usd_m=tri,
                                   low=min(min(v.values()) for v in tri.values()), high=max(max(v.values()) for v in tri.values()),
                                   note="ESTIMATE: minutes per call and the price mix are assumptions; enterprise contracts may price lower")
 
+# ---------- 4. valuation, dilution and VC returns ----------
+# 4a. reported rounds with a disclosed post-money valuation
+#     pre-money = post-money - new money; dilution to existing holders = new money / post-money
+v = c.dropna(subset=["valuation_usd_m"])
+R["valuation"] = {r.company: dict(round=r.latest_round, new_money_usd_m=r.round_usd_m, post_money_usd_m=r.valuation_usd_m,
+                                  pre_money_usd_m=r.valuation_usd_m - r.round_usd_m, dilution=r.round_usd_m / r.valuation_usd_m)
+                  for r in v.itertuples()}
+# Uniphore's Series F was flat on its 2022 Series E post-money of $2.5B: existing holders' stake value changes by pre / previous post - 1
+R["valuation"]["Uniphore"]["previous_post_money_usd_m"] = 2500
+R["valuation"]["Uniphore"]["value_change_for_existing_holders"] = R["valuation"]["Uniphore"]["pre_money_usd_m"] / 2500 - 1
+# 4b. SCENARIO: a $1M seed cheque, diluted by later rounds; exit value needed for a 10x return
+#     ownership at entry = cheque / post-money; ownership at exit = entry x product of (1 - dilution of each later round)
+#     exit needed = target multiple x cheque / ownership at exit; ARR needed = exit needed / exit revenue multiple
+CHEQUE, TARGET, EXIT_MULT = 1.0, 10, 10
+LATER = {"Series A": 0.20, "Series B": 0.156, "Series C": 0.104, "ESOP top-ups": 0.05}   # B and C set to Sarvam's and Uniphore's real dilution
+keep = float(np.prod([1 - x for x in LATER.values()]))
+ret = {}
+for post in [20, 30, 40]:
+    own0 = CHEQUE / post
+    own1 = own0 * keep
+    exit_needed = TARGET * CHEQUE / own1
+    ret[f"seed post-money ${post}M"] = dict(entry_ownership=own0, exit_ownership=own1, exit_needed_usd_m=exit_needed,
+                                            arr_needed_usd_m_at_10x=exit_needed / EXIT_MULT)
+R["vc_returns"] = dict(assumptions=dict(cheque_usd_m=CHEQUE, target_multiple=TARGET, exit_revenue_multiple=EXIT_MULT, later_dilution=LATER),
+                       ownership_kept_after_later_rounds=keep, scenarios=ret,
+                       note="SCENARIO: seed post-money values and the Series A and ESOP dilution are assumptions; "
+                            "Series B and C dilution use the real Sarvam and Uniphore rounds")
+mid = ret["seed post-money $30M"]
+R["vc_returns"]["growth_needed_vs_bolna_estimate"] = dict(arr_needed_usd_m=mid["arr_needed_usd_m_at_10x"],
+                                                          vs_low=mid["arr_needed_usd_m_at_10x"] / R["revenue_triangulation"]["low"],
+                                                          vs_high=mid["arr_needed_usd_m_at_10x"] / R["revenue_triangulation"]["high"])
+
 # ---------- charts ----------
-fig, ax = plt.subplots(1, 3, figsize=(14, 4.4))
+fig, ax = plt.subplots(2, 2, figsize=(14, 9.5))
+ax = ax.ravel()
 o = c.sort_values("round_usd_m")
-cols = {"Models + platform": "#0052CC", "Orchestration": "#E07A2F", "Applications": "#9AA5AD"}
+cols = {"Models + platform": "#0052CC", "Orchestration": "#E07A2F", "Applications": "#9AA5AD", "Infrastructure": "#2E8B57"}
 ax[0].barh(o.company, o.round_usd_m, color=[cols[x] for x in o.layer]); ax[0].set_xscale("log")
-for i, (v, dte) in enumerate(zip(o.round_usd_m, o.round_date)): ax[0].text(v * 1.1, i, f"${v:g}M ({dte})", va="center", fontsize=8)
-ax[0].set_xlim(3, 2000); ax[0].set_xlabel("Latest disclosed round (USD million, log scale)")
-ax[0].set_title("Latest rounds: blue = models, orange = orchestration,\ngrey = applications", fontsize=10)
-im = ax[1].imshow(grid.to_numpy() * 100, aspect="auto", cmap="RdYlGn", vmin=-20, vmax=100)
+for i, (val, dte) in enumerate(zip(o.round_usd_m, o.round_date)): ax[0].text(val * 1.1, i, f"${val:g}M ({dte})", va="center", fontsize=8)
+ax[0].set_xlim(1, 3000); ax[0].set_xlabel("Latest disclosed round (USD million, log scale)")
+ax[0].set_title("Latest rounds: blue = models, green = infrastructure,\norange = orchestration, grey = applications", fontsize=10)
+ax[1].imshow(grid.to_numpy() * 100, aspect="auto", cmap="RdYlGn", vmin=-20, vmax=100)
 ax[1].set_xticks(range(len(PRICES))); ax[1].set_xticklabels([k.split(" (")[0] + "\n" + k.split("(")[1].rstrip(")") for k in PRICES], fontsize=8)
 ax[1].set_yticks(range(len(grid))); ax[1].set_yticklabels(grid.index, fontsize=8); ax[1].set_ylabel("AI stack cost per minute (scenario)")
 for i in range(len(grid)):
@@ -64,12 +101,18 @@ x = np.arange(3)
 ax[2].bar(x - .2, lo, .4, color="#9AA5AD", label="at 4.2c/min"); ax[2].bar(x + .2, hi, .4, color="#0052CC", label="at 6.0c/min")
 for i in range(3): ax[2].text(i - .2, lo[i] + .2, f"${lo[i]:.1f}M", ha="center", fontsize=8); ax[2].text(i + .2, hi[i] + .2, f"${hi[i]:.1f}M", ha="center", fontsize=8)
 ax[2].set_xticks(x); ax[2].set_xticklabels(["1 min/call", "2 min/call", "3 min/call"]); ax[2].legend(fontsize=8)
-ax[2].set_ylabel("Annualised AI revenue (USD million, estimate)"); ax[2].set_title("Bolna at 200K calls/day: revenue range", fontsize=10)
-for a in (ax[0], ax[2]): a.spines[["top", "right"]].set_visible(False)
+ax[2].set_ylabel("Annualised AI revenue (USD million, estimate)"); ax[2].set_title("Bolna at 200K calls/day: revenue range (estimate)", fontsize=10)
+names = list(ret); ex = [ret[n]["exit_needed_usd_m"] for n in names]
+ax[3].bar(range(3), ex, color="#0052CC", width=.5)
+for i, n in enumerate(names):
+    ax[3].text(i, ex[i] + 12, f"${ex[i]:.0f}M exit\n(ARR ${ret[n]['arr_needed_usd_m_at_10x']:.0f}M at 10x)\n{ret[n]['exit_ownership']*100:.2f}% owned at exit", ha="center", fontsize=8)
+ax[3].set_xticks(range(3)); ax[3].set_xticklabels([n.replace("seed post-money ", "Seed post-money\n") for n in names], fontsize=8)
+ax[3].set_ylim(0, max(ex) * 1.3); ax[3].set_ylabel("Exit value needed (USD million)")
+ax[3].set_title("Scenario: exit value a $1M seed cheque needs to return 10x", fontsize=10)
+for a in (ax[0], ax[2], ax[3]): a.spines[["top", "right"]].set_visible(False)
 plt.tight_layout(); plt.savefig("results/summary.png", dpi=150)
 
 grid.to_csv("results/margin_grid.csv")
-json.dump(R, open("results/results.json", "w"), indent=2)
-print(json.dumps({k: R[k] for k in ["market_map"]}, indent=2)); print(json.dumps(R["unit_economics"]["cost_down_scenario"], indent=2))
+json.dump(R, open("results/results.json", "w"), indent=2, default=float)
+print(json.dumps({k: R[k] for k in ["market_map", "valuation", "vc_returns"]}, indent=2, default=float))
 print("triangulation", round(R["revenue_triangulation"]["low"], 2), round(R["revenue_triangulation"]["high"], 2))
-print(R["unit_economics"]["max_stack_cost_for_50pct_margin_c"], R["unit_economics"]["max_stack_cost_for_70pct_margin_c"])
