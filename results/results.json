@@ -1,0 +1,121 @@
+{
+  "market_map": {
+    "companies": 6,
+    "layers": [
+      {
+        "layer": "Applications",
+        "companies": 2,
+        "latest_rounds_usd_m": 33.0
+      },
+      {
+        "layer": "Models + platform",
+        "companies": 3,
+        "latest_rounds_usd_m": 257.0
+      },
+      {
+        "layer": "Orchestration",
+        "companies": 1,
+        "latest_rounds_usd_m": 6.3
+      }
+    ],
+    "latest_rounds_total_usd_m": 296.3,
+    "sarvam_share_of_total": 0.7897401282483969,
+    "rounds_in_2026": 5,
+    "median_round_excl_sarvam_usd_m": 10.0
+  },
+  "unit_economics": {
+    "gross_margin_grid": {
+      "0.5c": {
+        "Pay-as-you-go (6.0c)": 0.917,
+        "Pilot, $300 (4.6c)": 0.891,
+        "Pilot, $500 (4.2c)": 0.881
+      },
+      "1.0c": {
+        "Pay-as-you-go (6.0c)": 0.833,
+        "Pilot, $300 (4.6c)": 0.783,
+        "Pilot, $500 (4.2c)": 0.762
+      },
+      "1.5c": {
+        "Pay-as-you-go (6.0c)": 0.75,
+        "Pilot, $300 (4.6c)": 0.674,
+        "Pilot, $500 (4.2c)": 0.643
+      },
+      "2.0c": {
+        "Pay-as-you-go (6.0c)": 0.667,
+        "Pilot, $300 (4.6c)": 0.565,
+        "Pilot, $500 (4.2c)": 0.524
+      },
+      "2.5c": {
+        "Pay-as-you-go (6.0c)": 0.583,
+        "Pilot, $300 (4.6c)": 0.457,
+        "Pilot, $500 (4.2c)": 0.405
+      },
+      "3.0c": {
+        "Pay-as-you-go (6.0c)": 0.5,
+        "Pilot, $300 (4.6c)": 0.348,
+        "Pilot, $500 (4.2c)": 0.286
+      },
+      "3.5c": {
+        "Pay-as-you-go (6.0c)": 0.417,
+        "Pilot, $300 (4.6c)": 0.239,
+        "Pilot, $500 (4.2c)": 0.167
+      },
+      "4.0c": {
+        "Pay-as-you-go (6.0c)": 0.333,
+        "Pilot, $300 (4.6c)": 0.13,
+        "Pilot, $500 (4.2c)": 0.048
+      },
+      "4.5c": {
+        "Pay-as-you-go (6.0c)": 0.25,
+        "Pilot, $300 (4.6c)": 0.022,
+        "Pilot, $500 (4.2c)": -0.071
+      },
+      "5.0c": {
+        "Pay-as-you-go (6.0c)": 0.167,
+        "Pilot, $300 (4.6c)": -0.087,
+        "Pilot, $500 (4.2c)": -0.19
+      }
+    },
+    "max_stack_cost_for_50pct_margin_c": {
+      "Pay-as-you-go (6.0c)": 3.0,
+      "Pilot, $300 (4.6c)": 2.3,
+      "Pilot, $500 (4.2c)": 2.1
+    },
+    "max_stack_cost_for_70pct_margin_c": {
+      "Pay-as-you-go (6.0c)": 1.8,
+      "Pilot, $300 (4.6c)": 1.38,
+      "Pilot, $500 (4.2c)": 1.26
+    },
+    "cost_down_scenario": {
+      "price_c": 4.2,
+      "stack_cost_before_c": 3.5,
+      "stack_cost_after_c": 0.875,
+      "margin_before": 0.16666666666666663,
+      "margin_after": 0.7916666666666666,
+      "note": "SCENARIO: stack cost before the cut is an assumption"
+    }
+  },
+  "revenue_triangulation": {
+    "calls_per_day": 200000,
+    "annualised_usd_m": {
+      "1 min/call": {
+        "Pay-as-you-go (6.0c)": 4.38,
+        "Pilot, $300 (4.6c)": 3.358,
+        "Pilot, $500 (4.2c)": 3.066
+      },
+      "2 min/call": {
+        "Pay-as-you-go (6.0c)": 8.76,
+        "Pilot, $300 (4.6c)": 6.716,
+        "Pilot, $500 (4.2c)": 6.132
+      },
+      "3 min/call": {
+        "Pay-as-you-go (6.0c)": 13.14,
+        "Pilot, $300 (4.6c)": 10.074,
+        "Pilot, $500 (4.2c)": 9.198
+      }
+    },
+    "low": 3.066,
+    "high": 13.14,
+    "note": "ESTIMATE: minutes per call and the price mix are assumptions; enterprise contracts may price lower"
+  }
+}
