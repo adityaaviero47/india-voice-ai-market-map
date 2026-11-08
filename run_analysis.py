@@ -81,6 +81,33 @@ R["vc_returns"]["growth_needed_vs_bolna_estimate"] = dict(arr_needed_usd_m=mid["
                                                           vs_low=mid["arr_needed_usd_m_at_10x"] / R["revenue_triangulation"]["low"],
                                                           vs_high=mid["arr_needed_usd_m_at_10x"] / R["revenue_triangulation"]["high"])
 
+# ---------- 5. deal memo numbers: Bolna (see MEMO_BOLNA.md) ----------
+# Reported: ARR about $0.7M and 200K+ calls a day (TechCrunch and Bolna, Jan 2026); 1,050+ paying customers.
+ARR, CUST = 0.7, 1050
+rev_per_call = ARR * 1e6 / (calls * 365)                       # revenue per call = ARR / (calls a day x 365)
+billed_min = {k: rev_per_call / pr for k, pr in PRICES.items()}  # billed minutes per call = revenue per call / price per minute
+B = dict(reported_arr_usd_m=ARR, calls_per_day=calls, revenue_per_call_usd=rev_per_call,
+         implied_billed_minutes_per_call=billed_min,
+         triangulation_vs_reported=dict(low=R["revenue_triangulation"]["low"] / ARR, high=R["revenue_triangulation"]["high"] / ARR),
+         arr_per_paying_customer_usd=ARR * 1e6 / CUST, mrr_per_paying_customer_usd=ARR * 1e6 / CUST / 12)
+# SCENARIO: a $5M cheque into a Series A, priced at 25x ARR at the time of the raise
+A_CHEQUE, A_MULT = 5.0, 25
+later_a = {k: LATER[k] for k in ["Series B", "Series C", "ESOP top-ups"]}
+keep_a = float(np.prod([1 - x for x in later_a.values()]))
+series_a = {}
+for arr_at_raise in [2, 3, 5]:
+    post = arr_at_raise * A_MULT
+    own_exit = A_CHEQUE / post * keep_a
+    series_a[f"ARR ${arr_at_raise}M at raise"] = dict(post_money_usd_m=post, entry_ownership=A_CHEQUE / post, exit_ownership=own_exit,
+                                                      exit_for_5x_usd_m=5 * A_CHEQUE / own_exit, exit_for_10x_usd_m=10 * A_CHEQUE / own_exit,
+                                                      arr_needed_for_5x_at_10x_revenue_usd_m=5 * A_CHEQUE / own_exit / EXIT_MULT)
+B["series_a_scenario"] = dict(assumptions=dict(cheque_usd_m=A_CHEQUE, price_as_multiple_of_arr=A_MULT, later_dilution=later_a),
+                              ownership_kept_after_later_rounds=keep_a, cases=series_a,
+                              note="SCENARIO: ARR at the raise and the 25x ARR price are assumptions")
+mid_a = series_a["ARR $3M at raise"]
+B["series_a_scenario"]["growth_needed_vs_reported_arr_for_5x"] = mid_a["arr_needed_for_5x_at_10x_revenue_usd_m"] / ARR
+R["bolna_deal"] = B
+
 # ---------- charts ----------
 fig, ax = plt.subplots(2, 2, figsize=(14, 9.5))
 ax = ax.ravel()
@@ -100,8 +127,10 @@ lo = [tri[f"{m} min/call"]["Pilot, $500 (4.2c)"] for m in [1, 2, 3]]; hi = [tri[
 x = np.arange(3)
 ax[2].bar(x - .2, lo, .4, color="#9AA5AD", label="at 4.2c/min"); ax[2].bar(x + .2, hi, .4, color="#0052CC", label="at 6.0c/min")
 for i in range(3): ax[2].text(i - .2, lo[i] + .2, f"${lo[i]:.1f}M", ha="center", fontsize=8); ax[2].text(i + .2, hi[i] + .2, f"${hi[i]:.1f}M", ha="center", fontsize=8)
+ax[2].axhline(ARR, color="#C0392B", lw=1.5, ls="--", label=f"reported ARR, Jan 2026 (${ARR}M)")
 ax[2].set_xticks(x); ax[2].set_xticklabels(["1 min/call", "2 min/call", "3 min/call"]); ax[2].legend(fontsize=8)
-ax[2].set_ylabel("Annualised AI revenue (USD million, estimate)"); ax[2].set_title("Bolna at 200K calls/day: revenue range (estimate)", fontsize=10)
+ax[2].set_ylabel("Annualised AI revenue (USD million)")
+ax[2].set_title("Bolna at 200K calls/day: list-price estimate vs reported ARR", fontsize=10)
 names = list(ret); ex = [ret[n]["exit_needed_usd_m"] for n in names]
 ax[3].bar(range(3), ex, color="#0052CC", width=.5)
 for i, n in enumerate(names):

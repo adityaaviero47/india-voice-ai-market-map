@@ -4,6 +4,8 @@ An early-stage investor's view of Indian voice AI agents: who is building what, 
 
 I built and ran a production voice AI calling agent at Tru Estate (1 lakh+ calls a day), so the cost and latency questions below come from operating one, not only from reading about them.
 
+**Deal memo:** [`MEMO_BOLNA.md`](MEMO_BOLNA.md) applies all of this to one company, Bolna, as an investment-committee memo with a recommendation, a returns table, risks and conditions to invest.
+
 **Data:** `data/companies.csv` holds 10 companies. Every funding figure and metric comes from a public announcement linked in the file. Prices come from Bolna's public pricing page. Anything marked **ESTIMATE** or **SCENARIO** is my calculation on stated assumptions, not a reported number.
 
 ![summary](results/summary.png)
@@ -27,9 +29,9 @@ I built and ran a production voice AI calling agent at Tru Estate (1 lakh+ calls
 | Traction | Bolna went from 1.5K to **200K+ calls a day** with **1,050+ paying customers**; Sarvam reports **2M+ interactions a day**; Navana, **100M+ minutes** served; Exotel reported **$50M ARR** at its 2022 round (all company figures). | Demand is real; the open question is who keeps the margin |
 | Unit economics | Bolna's public price is **4.2–6.0 US cents a minute** for STT + LLM + TTS. To keep a **50%** gross margin on the AI stack, the stack must cost under **2.1–3.0c** a minute; for **70%**, under **1.3–1.8c**. | Orchestration margins depend on falling model prices, which the platform does not control |
 | Cost-down lever (SCENARIO) | At the lowest public price (4.2c), cutting an assumed 3.5c stack cost by **75%** lifts margin from **17% to 79%**. | Whoever owns cost and latency (own models, routing, caching) owns the margin; ask every founder for their cost per minute |
-| Revenue size (ESTIMATE) | 200K calls a day at 1–3 minutes a call and 4.2–6.0c a minute implies **$3.1M–13.1M** of annualised AI-stack revenue for Bolna. Revenue is not disclosed. | Sizes the business from public numbers; confirm with the founder's real minutes and price mix |
+| Calls vs revenue | At list price, Bolna's 200K calls a day at 1–3 minutes a call would earn **$3.1M–13.1M** a year (ESTIMATE). Its reported ARR is about **$0.7M** (Jan 2026), **4–19x lower**: about **1 cent per call**, or 10–14 billed seconds. | Call volume overstates revenue; billed minutes per call is the first diligence question (see the memo) |
 | Valuation | Sarvam's round: **$234M at $1.5B post-money**, so a **$1.27B pre-money** and **15.6% dilution**. Uniphore raised **$260M at a flat $2.5B**, the same post-money as its 2022 round, so existing holders' stake value fell **10.4%**. | Even a sector leader can raise flat; entry price matters |
-| Returns (SCENARIO) | A **$1M seed cheque at a $30M post-money** owns **3.3%**, diluted to **1.9%** by exit. Returning **10x** needs a **$522M exit**, or about **$52M ARR** at a 10x revenue multiple: **4–17x** Bolna's estimated revenue today. | A seed bet here must believe in a path to $50M+ ARR; that sets the bar for diligence |
+| Returns (SCENARIO) | A **$1M seed cheque at a $30M post-money** owns **3.3%**, diluted to **1.9%** by exit. Returning **10x** needs a **$522M exit**, or about **$52M ARR** at a 10x revenue multiple: about **75x** Bolna's reported ARR. | A seed bet here must believe in a path to $50M+ ARR; that sets the bar for diligence |
 
 The full margin grid (stack cost 0.5–5.0c against the three public price points) is in `results/margin_grid.csv`.
 
@@ -97,7 +99,7 @@ Later dilution: Series A 20% and ESOP top-ups 5% (assumptions); Series B 15.6% a
 
 - **Market map:** companies grouped by the layer they mainly sell. Funding = latest disclosed round only, not total raised, so totals understate cumulative funding.
 - **Gross margin** = 1 − (AI stack cost per minute ÷ price per minute). Price and cost both exclude telephony and platform fees, which Bolna bills separately.
-- **Revenue triangulation** = calls a day × minutes a call × price a minute × 365.
+- **Revenue triangulation** = calls a day × minutes a call × price a minute × 365. Revenue per call = reported ARR ÷ (calls a day × 365); billed minutes per call = revenue per call ÷ price a minute.
 - **Currency:** Navana's INR 40 crore round is converted at INR 88 per US dollar (an assumption; reports of the USD amount differ).
 
 ## Limitations
@@ -111,9 +113,10 @@ Later dilution: Series A 20% and ESOP top-ups 5% (assumptions); Series B 15.6% a
 
 ## Outputs
 
-- `results/results.json`: every number in this README
+- `results/results.json`: every number in this README and the memo
 - `results/margin_grid.csv`: gross margin by stack cost and price
 - `results/summary.png`: the four charts above
+- `MEMO_BOLNA.md`: the Bolna investment memo
 
 ## Run it
 
@@ -124,4 +127,4 @@ python run_analysis.py   # writes everything in results/
 
 ## Sources
 
-Links for every company row are in `data/companies.csv` (BusinessToday, Inc42, YourStory, Business Standard, Entrepreneur India, and the Smallest.ai and Bolna company pages). Prices: bolna.ai/pricing, read in November 2026.
+Links for every company row are in `data/companies.csv` (BusinessToday, Inc42, YourStory, Business Standard, Entrepreneur India, TechCrunch, and the Smallest.ai and Bolna company pages). Prices: bolna.ai/pricing, read in November 2026.
